@@ -1,8 +1,23 @@
+resource "aws_security_group" "HTTP" {
+  name        = "HTTP"
+  description = "Allow HTTP inbound traffic"
+  vpc_id      = data.aws_vpc.default.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_alb" "ALB" {
   name            = "MyALB"
   subnets         = slice(data.aws_subnets.default.ids, 0, 2)
-  security_groups = [data.aws_security_group.default.id]
+  security_groups = [aws_security_group.HTTP.id]
 }
+
+
 
 resource "aws_alb_listener" "http" {
   load_balancer_arn = aws_alb.ALB.arn
